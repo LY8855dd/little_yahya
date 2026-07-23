@@ -41,68 +41,89 @@ class MoneyScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Text('Monthly savings goal',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () => _editGoal(context, state),
-                        child: Text('${state.monthlySavingsGoalSar.toStringAsFixed(0)} SAR'),
+          GradientCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text('MONTHLY SAVINGS GOAL',
+                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: 0.5)),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => _editGoal(context, state),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text('${state.monthlySavingsGoalSar.toStringAsFixed(0)} SAR',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text('${state.thisMonthSavings.toStringAsFixed(0)} SAR',
+                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 32)),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
                     value: savingsProgress,
-                    backgroundColor: AppTheme.surfaceAlt,
-                    color: AppTheme.accent,
+                    backgroundColor: Colors.black.withValues(alpha: 0.25),
+                    color: Colors.white,
                     minHeight: 8,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                      '${state.thisMonthSavings.toStringAsFixed(0)} / ${state.monthlySavingsGoalSar.toStringAsFixed(0)} SAR this month'),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppTheme.accent,
+                    ),
                     onPressed: () => _addDeposit(context),
                     child: const Text('Add deposit'),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  const Text('Fast food this month',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 6),
+                  const Icon(Icons.fastfood, color: AppTheme.warn),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Fast food this month',
+                            style: TextStyle(fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Compare with homemade costs in Food',
+                          style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
                   Text(
                     '${state.thisMonthFastFoodSpend.toStringAsFixed(0)} SAR',
-                    style: const TextStyle(fontSize: 20, color: AppTheme.warn),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Compare this to what your homemade versions cost in the Food tab.',
-                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.warn),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          Text('Recent spending', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
+          const SizedBox(height: 20),
+          const SectionHeader(title: 'RECENT SPENDING'),
           if (sortedEntries.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 16),

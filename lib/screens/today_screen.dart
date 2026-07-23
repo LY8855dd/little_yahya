@@ -42,80 +42,175 @@ class _TodayScreenState extends State<TodayScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Today')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
-          if (state.returningAfterGap) _ReturnBanner(state: state),
-          _CommitmentCard(commitment: commitment),
-          const SizedBox(height: 16),
-          Text('What is the most important thing you need to move forward today?',
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _taskController,
-            maxLines: 2,
-            decoration: const InputDecoration(
-              hintText: 'One task. Be specific.',
-            ),
-            onChanged: (v) => _checkIn.mostImportantTask = v,
-            onSubmitted: (_) => _save(),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Checkbox(
-                value: _checkIn.mostImportantDone,
-                onChanged: (v) {
-                  setState(() => _checkIn.mostImportantDone = v ?? false);
-                  _save();
-                },
+          if (state.returningAfterGap) ...[
+            _ReturnBanner(state: state),
+            const SizedBox(height: 14),
+          ],
+          _CommitmentHero(commitment: commitment),
+          const SizedBox(height: 20),
+          const SectionHeader(title: "TODAY'S ONE THING"),
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _checkIn.mostImportantDone
+                    ? AppTheme.accent
+                    : Colors.white.withValues(alpha: 0.06),
+                width: _checkIn.mostImportantDone ? 2 : 1,
               ),
-              const Text('Done'),
-              const Spacer(),
-              TextButton(onPressed: _save, child: const Text('Save')),
-            ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'What is the most important thing you need to move forward today?',
+                  style: const TextStyle(
+                      color: AppTheme.textSecondary, fontSize: 13, height: 1.3),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _taskController,
+                  maxLines: 2,
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                  decoration: const InputDecoration(
+                    hintText: 'One task. Be specific.',
+                  ),
+                  onChanged: (v) => _checkIn.mostImportantTask = v,
+                  onSubmitted: (_) => _save(),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() =>
+                            _checkIn.mostImportantDone = !_checkIn.mostImportantDone);
+                        _save();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _checkIn.mostImportantDone
+                              ? AppTheme.accent
+                              : AppTheme.surfaceAlt,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _checkIn.mostImportantDone
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                              size: 18,
+                              color: _checkIn.mostImportantDone
+                                  ? Colors.white
+                                  : AppTheme.textSecondary,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              _checkIn.mostImportantDone ? 'Done' : 'Mark done',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                color: _checkIn.mostImportantDone
+                                    ? Colors.white
+                                    : AppTheme.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton(onPressed: _save, child: const Text('Save')),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.local_fire_department,
-                  color: state.currentStreak > 0
-                      ? AppTheme.warn
-                      : AppTheme.textSecondary,
-                  size: 18),
-              const SizedBox(width: 4),
-              Text('${state.currentStreak} day streak'),
-            ],
+          const SizedBox(height: 14),
+          _StreakBadge(streak: state.currentStreak),
+          const SizedBox(height: 28),
+          const SectionHeader(title: 'BODY & MIND CHECK-IN'),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                _RatingRow(
+                  label: 'Sleep (hrs)',
+                  value: _checkIn.sleepHours,
+                  max: 12,
+                  onChanged: (v) {
+                    setState(() => _checkIn.sleepHours = v);
+                    _save();
+                  },
+                ),
+                const Divider(height: 1, color: AppTheme.surfaceAlt),
+                _RatingRow(
+                  label: 'Food',
+                  value: _checkIn.foodQuality,
+                  max: 5,
+                  onChanged: (v) {
+                    setState(() => _checkIn.foodQuality = v);
+                    _save();
+                  },
+                ),
+                const Divider(height: 1, color: AppTheme.surfaceAlt),
+                _RatingRow(
+                  label: 'Mindset',
+                  value: _checkIn.mindset,
+                  max: 5,
+                  onChanged: (v) {
+                    setState(() => _checkIn.mindset = v);
+                    _save();
+                  },
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 24),
-          Text('Body & mind check-in',
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          _RatingRow(
-            label: 'Sleep (hours)',
-            value: _checkIn.sleepHours,
-            max: 12,
-            onChanged: (v) {
-              setState(() => _checkIn.sleepHours = v);
-              _save();
-            },
-          ),
-          _RatingRow(
-            label: 'Food quality',
-            value: _checkIn.foodQuality,
-            max: 5,
-            onChanged: (v) {
-              setState(() => _checkIn.foodQuality = v);
-              _save();
-            },
-          ),
-          _RatingRow(
-            label: 'Mindset',
-            value: _checkIn.mindset,
-            max: 5,
-            onChanged: (v) {
-              setState(() => _checkIn.mindset = v);
-              _save();
-            },
+        ],
+      ),
+    );
+  }
+}
+
+class _StreakBadge extends StatelessWidget {
+  final int streak;
+  const _StreakBadge({required this.streak});
+
+  @override
+  Widget build(BuildContext context) {
+    final active = streak > 0;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: active
+            ? AppTheme.accentGold.withValues(alpha: 0.15)
+            : AppTheme.surface,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.local_fire_department,
+              color: active ? AppTheme.accentGold : AppTheme.textSecondary,
+              size: 20),
+          const SizedBox(width: 6),
+          Text(
+            '$streak day streak',
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              color: active ? AppTheme.accentGold : AppTheme.textSecondary,
+            ),
           ),
         ],
       ),
@@ -129,45 +224,54 @@ class _ReturnBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppTheme.surfaceAlt,
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("You've been away a few days.",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-            const Text(
-                'Nothing is broken. Answer honestly: does the commitment below still matter? If yes, pick one next action today.'),
-          ],
-        ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.violet.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.violet.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.wb_twilight, color: AppTheme.violet, size: 20),
+              const SizedBox(width: 8),
+              const Text("You've been away a few days.",
+                  style: TextStyle(fontWeight: FontWeight.w800)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text(
+              'Nothing is broken. Answer honestly: does the commitment below still matter? If yes, pick one next action today.'),
+        ],
       ),
     );
   }
 }
 
-class _CommitmentCard extends StatelessWidget {
+class _CommitmentHero extends StatelessWidget {
   final Commitment? commitment;
-  const _CommitmentCard({required this.commitment});
+  const _CommitmentHero({required this.commitment});
 
   @override
   Widget build(BuildContext context) {
     if (commitment == null) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('No primary commitment set.',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
-              const Text(
-                  'Everything else in this app orbits one thing. Set it on the Commitment tab.'),
-            ],
-          ),
+      return GradientCard(
+        gradient: AppTheme.violetGradient,
+        child: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('No primary commitment set',
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+            SizedBox(height: 8),
+            Text(
+              'Everything else in this app orbits one thing. Set it on the Commitment tab.',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ],
         ),
       );
     }
@@ -176,54 +280,65 @@ class _CommitmentCard extends StatelessWidget {
     final totalMilestones = c.milestones.length;
     final doneMilestones = c.milestones.where((m) => m.done).length;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(c.title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 18)),
-                ),
-                if (c.mode == CommitmentMode.schoolFirst)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppTheme.accent.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text('School-first',
-                        style: TextStyle(fontSize: 12, color: AppTheme.accent)),
+    return GradientCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(c.title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900, fontSize: 22, height: 1.1)),
+              ),
+              if (c.mode == CommitmentMode.schoolFirst)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-              ],
+                  child: const Text('SCHOOL-FIRST',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(c.result, style: const TextStyle(color: Colors.white70, height: 1.3)),
+          if (daysLeft != null) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.22),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                daysLeft >= 0 ? '$daysLeft DAYS LEFT' : '${-daysLeft} DAYS OVERDUE',
+                style: const TextStyle(
+                    fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5),
+              ),
+            ),
+          ],
+          if (totalMilestones > 0) ...[
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: doneMilestones / totalMilestones,
+                backgroundColor: Colors.black.withValues(alpha: 0.25),
+                color: Colors.white,
+                minHeight: 8,
+              ),
             ),
             const SizedBox(height: 6),
-            Text(c.result, style: const TextStyle(color: AppTheme.textSecondary)),
-            if (daysLeft != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                daysLeft >= 0 ? '$daysLeft days left' : '${-daysLeft} days overdue',
-                style: TextStyle(
-                    color: daysLeft < 0 ? AppTheme.danger : AppTheme.warn),
-              ),
-            ],
-            if (totalMilestones > 0) ...[
-              const SizedBox(height: 8),
-              LinearProgressIndicator(
-                value: doneMilestones / totalMilestones,
-                backgroundColor: AppTheme.surfaceAlt,
-                color: AppTheme.accent,
-              ),
-              const SizedBox(height: 4),
-              Text('$doneMilestones / $totalMilestones milestones'),
-            ],
+            Text('$doneMilestones / $totalMilestones milestones',
+                style: const TextStyle(color: Colors.white70, fontSize: 12)),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -245,10 +360,13 @@ class _RatingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          SizedBox(width: 120, child: Text(label)),
+          SizedBox(
+            width: 90,
+            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+          ),
           Expanded(
             child: Wrap(
               spacing: 6,
@@ -257,17 +375,20 @@ class _RatingRow extends StatelessWidget {
                 final selected = value == v;
                 return GestureDetector(
                   onTap: () => onChanged(v),
-                  child: Container(
-                    width: 28,
-                    height: 28,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: 30,
+                    height: 30,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: selected ? AppTheme.accent : AppTheme.surfaceAlt,
-                      borderRadius: BorderRadius.circular(6),
+                      gradient: selected ? AppTheme.heroGradient : null,
+                      color: selected ? null : AppTheme.surfaceAlt,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text('$v',
                         style: TextStyle(
-                            color: selected ? Colors.black : AppTheme.textPrimary,
+                            color: selected ? Colors.white : AppTheme.textSecondary,
+                            fontWeight: FontWeight.w800,
                             fontSize: 12)),
                   ),
                 );

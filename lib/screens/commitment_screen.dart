@@ -46,24 +46,32 @@ class CommitmentScreen extends StatelessWidget {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(c.title,
-                            style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        Text('Result: ${c.result}'),
-                        if (c.deadline != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                              'Deadline: ${DateFormat.yMMMd().format(c.deadline!)}'),
-                        ],
+                GradientCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(c.title,
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w900)),
+                      const SizedBox(height: 8),
+                      Text('Result: ${c.result}',
+                          style: const TextStyle(color: Colors.white70)),
+                      if (c.deadline != null) ...[
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.22),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'Deadline: ${DateFormat.yMMMd().format(c.deadline!)}',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                          ),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -87,8 +95,7 @@ class CommitmentScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text('Milestones', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
+                const SectionHeader(title: 'MILESTONES'),
                 ...c.milestones.map((m) => Card(
                       child: CheckboxListTile(
                         title: Text(
@@ -109,9 +116,7 @@ class CommitmentScreen extends StatelessWidget {
                   label: const Text('Add milestone'),
                 ),
                 const SizedBox(height: 16),
-                Text('If things change',
-                    style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
+                const SectionHeader(title: 'IF THINGS CHANGE'),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
