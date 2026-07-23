@@ -45,18 +45,17 @@ class RootShell extends StatefulWidget {
 class _RootShellState extends State<RootShell> {
   int _index = 0;
 
-  static const _screens = [
-    TodayScreen(),
-    CommitmentScreen(),
-    FoodScreen(),
-    MoneyScreen(),
-    HobbiesScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      TodayScreen(onNavigate: (i) => setState(() => _index = i)),
+      const CommitmentScreen(),
+      const FoodScreen(),
+      const MoneyScreen(),
+      const HobbiesScreen(),
+    ];
     return Scaffold(
-      body: IndexedStack(index: _index, children: _screens),
+      body: IndexedStack(index: _index, children: screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),

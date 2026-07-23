@@ -205,6 +205,21 @@ class AppState extends ChangeNotifier {
       hobbyEntries.where((h) => h.type == type).toList()
         ..sort((a, b) => b.date.compareTo(a.date));
 
+  int get hobbyEntriesThisWeek {
+    final weekAgo = DateTime.now().subtract(const Duration(days: 7));
+    return hobbyEntries.where((h) => h.date.isAfter(weekAgo)).length;
+  }
+
+  int get recipeVersionsLogged =>
+      recipes.fold(0, (sum, r) => sum + r.versions.length);
+
+  double get thisWeekMoneySpend {
+    final weekAgo = DateTime.now().subtract(const Duration(days: 7));
+    return moneyEntries
+        .where((m) => m.date.isAfter(weekAgo))
+        .fold(0.0, (sum, m) => sum + m.amountSar);
+  }
+
   // ---- Re-entry ----
   bool get returningAfterGap {
     if (lastOpenedAt == null) return false;

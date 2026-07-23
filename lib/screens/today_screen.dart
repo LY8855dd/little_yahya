@@ -5,7 +5,8 @@ import '../services/app_state.dart';
 import '../theme/app_theme.dart';
 
 class TodayScreen extends StatefulWidget {
-  const TodayScreen({super.key});
+  final ValueChanged<int>? onNavigate;
+  const TodayScreen({super.key, this.onNavigate});
 
   @override
   State<TodayScreen> createState() => _TodayScreenState();
@@ -40,7 +41,7 @@ class _TodayScreenState extends State<TodayScreen> {
     final commitment = state.commitment;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Today')),
+      appBar: AppBar(title: const Text('Dashboard')),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
@@ -49,7 +50,9 @@ class _TodayScreenState extends State<TodayScreen> {
             const SizedBox(height: 14),
           ],
           _CommitmentHero(commitment: commitment),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          _DashboardGrid(state: state, onNavigate: widget.onNavigate),
+          const SizedBox(height: 24),
           const SectionHeader(title: "TODAY'S ONE THING"),
           Container(
             decoration: BoxDecoration(
@@ -133,9 +136,7 @@ class _TodayScreenState extends State<TodayScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
-          _StreakBadge(streak: state.currentStreak),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
           const SectionHeader(title: 'BODY & MIND CHECK-IN'),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -183,36 +184,132 @@ class _TodayScreenState extends State<TodayScreen> {
   }
 }
 
-class _StreakBadge extends StatelessWidget {
-  final int streak;
-  const _StreakBadge({required this.streak});
+class _DashboardGrid extends StatelessWidget {
+  final AppState state;
+  final ValueChanged<int>? onNavigate;
+  const _DashboardGrid({required this.state, required this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
-    final active = streak > 0;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: active
-            ? AppTheme.accentGold.withValues(alpha: 0.15)
-            : AppTheme.surface,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.local_fire_department,
-              color: active ? AppTheme.accentGold : AppTheme.textSecondary,
-              size: 20),
-          const SizedBox(width: 6),
-          Text(
-            '$streak day streak',
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-              color: active ? AppTheme.accentGold : AppTheme.textSecondary,
+    final streakActive = state.currentStreak > 0;
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _StatTile(
+                icon: Icons.local_fire_department,
+                label: 'Streak',
+                value: '${state.currentStreak}d',
+                color: streakActive ? AppTheme.accentGold : AppTheme.textSecondary,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: _StatTile(
+                icon: Icons.savings,
+                label: 'Saved this month',
+                value: '${state.thisMonthSavings.toStringAsFixed(0)} SAR',
+                color: AppTheme.violet,
+                onTap: () => onNavigate?.call(3),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _StatTile(
+                icon: Icons.fastfood,
+                label: 'Fast food this month',
+                value: '${state.thisMonthFastFoodSpend.toStringAsFixed(0)} SAR',
+                color: AppTheme.warn,
+                onTap: () => onNavigate?.call(3),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _StatTile(
+                icon: Icons.restaurant,
+                label: 'Recipe versions',
+                value: '${state.recipeVersionsLogged}',
+                color: AppTheme.accent,
+                onTap: () => onNavigate?.call(2),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _StatTile(
+                icon: Icons.camera_alt,
+                label: 'Hobby entries this week',
+                value: '${state.hobbyEntriesThisWeek}',
+                color: AppTheme.violet,
+                onTap: () => onNavigate?.call(4),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _StatTile(
+                icon: Icons.flag,
+                label: 'Milestones done',
+                value: state.commitment == null
+                    ? '—'
+                    : '${state.commitment!.milestones.where((m) => m.done).length}/${state.commitment!.milestones.length}',
+                color: AppTheme.accent,
+                onTap: () => onNavigate?.call(1),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _StatTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 10),
+            Text(value,
+                style: TextStyle(
+                    fontWeight: FontWeight.w900, fontSize: 18, color: color)),
+            const SizedBox(height: 2),
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 11.5, color: AppTheme.textSecondary, height: 1.2)),
+          ],
+        ),
       ),
     );
   }
